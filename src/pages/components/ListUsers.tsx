@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { List, ListItem, ListItemAvatar, ListItemText, Avatar, ListItemButton, Typography, FormControl, Divider, Grid, InputBase, IconButton, Paper, Fab, Dialog, DialogTitle, DialogContent } from '@mui/material';
+import { List, ListItem, ListItemAvatar, ListItemText, Avatar, ListItemButton, Typography, FormControl, Divider, Grid, InputBase, IconButton, Paper, Fab, Dialog, DialogTitle, DialogContent, Tooltip } from '@mui/material';
 import 'primeicons/primeicons.css';
 import SearchIcon from "@mui/icons-material/Search";
 import AddSharpIcon from '@mui/icons-material/AddSharp';
@@ -122,26 +122,28 @@ const ListUsers: React.FC = () => {
                             selected={checked.includes(item.id)}
                             onClick={(event) => onCheckedUser(item.id)}
                         >
-                            <ListItem
-                                alignItems="flex-start"
-                                key={item.id}
-                                style={{ paddingInline: 15 }}
-                                disablePadding
-                            >
-                                <Grid container wrap="nowrap" spacing={2}>
-                                    <Grid item>
-                                        <ListItemAvatar>
-                                            <Avatar variant="rounded" src={item.avatar}>{item.id}</Avatar>
-                                        </ListItemAvatar>
-                                    </Grid>
-                                    <Grid item xs>
-                                        <ListItemText
-                                            primary={item.userName}
-                                            secondary={`${item.department}, ${item.salary}`} 
-                                        />
-                                    </Grid>
-                                </Grid>        
-                            </ListItem>
+                            <Tooltip title="Чтобы добавить участника в существующую команду, кликните сначала по нему, после по соответствующей команде" placement="right">
+                                <ListItem
+                                    alignItems="flex-start"
+                                    key={item.id}
+                                    style={{ paddingInline: 15 }}
+                                    disablePadding
+                                >
+                                    <Grid container wrap="nowrap" spacing={2}>
+                                        <Grid item>
+                                            <ListItemAvatar>
+                                                <Avatar variant="rounded" src={item.avatar}>{item.id}</Avatar>
+                                            </ListItemAvatar>
+                                        </Grid>
+                                        <Grid item xs>
+                                            <ListItemText
+                                                primary={item.userName}
+                                                secondary={`${item.department}, ${item.salary}`} 
+                                            />
+                                        </Grid>
+                                    </Grid>        
+                                </ListItem>
+                            </Tooltip>
                         </ListItemButton>
                         <Divider variant="inset" component="li" />
                     </>
@@ -155,7 +157,10 @@ const ListUsers: React.FC = () => {
                     variant='outlined'
                     sx={{ display: 'flex', alignItems: 'center', size: 'small' }}
                     >
-                    <IconButton sx={{ }} onClick={onAddTeam}>
+                    <IconButton sx={{ }} onClick={() => {
+                        if (department && checked.length) {
+                            onAddTeam();
+                        }}}>
                         <Fab color="primary" aria-label="add" size="small">
                             <AddSharpIcon />
                         </Fab>

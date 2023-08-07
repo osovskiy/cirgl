@@ -60,7 +60,7 @@ const Canvas: React.FC = () => {
         );
       });
 
-    const handleDragEndTeam = useEventCallback((e: KonvaEventObject<DragEvent>) => {        
+    const handleDragEndTeam = useEventCallback((e: KonvaEventObject<DragEvent>) => {     
         setCircle(
             circle.map((circle: any) => {
             return {
@@ -70,7 +70,7 @@ const Canvas: React.FC = () => {
           })
         );
     });
-
+    
     const handleDragStart = useEventCallback((e: KonvaEventObject<DragEvent>) => {
         const id = e.target.id();
         setCircle(
@@ -122,7 +122,7 @@ const Canvas: React.FC = () => {
     });
 
     const onClick = useEventCallback((e: KonvaEventObject<MouseEvent>) => {
-        if (e.target.attrs.id !== undefined) {
+        if (e.target.attrs.id !== undefined && JSON.parse(localStorage.getItem('user') as string).length) {
             const team = JSON.parse(localStorage.getItem('team') as string) ?? [];
             const user = JSON.parse(localStorage.getItem('user') as string)[0];
             const result = team.map((item: ITeam) => { 
