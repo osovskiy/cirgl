@@ -37,9 +37,18 @@ const ListUsers: React.FC = () => {
                         data = data.concat(XLSX.utils.sheet_to_json(workbook.Sheets[sheet]));
                     }
                 }
-                setImportUsers(data);
-                localStorage.setItem('users', JSON.stringify(data));
-                localStorage.setItem('importUsers', JSON.stringify(data));
+                const users = data.map((item, index) => {
+                    return {
+                        avatar: item.avatar,
+                        department: item.department,
+                        salary: item.salary,
+                        userName: item.userName,
+                        id: index,
+                    };
+                });
+                setImportUsers(users);
+                localStorage.setItem('users', JSON.stringify(users));
+                localStorage.setItem('importUsers', JSON.stringify(users));
                 localStorage.setItem('team', JSON.stringify([]));
                 localStorage.setItem('user', JSON.stringify([]));
                 handleCloseDialog();
@@ -138,7 +147,7 @@ const ListUsers: React.FC = () => {
                                         <Grid item xs>
                                             <ListItemText
                                                 primary={item.userName}
-                                                secondary={`${item.department}, ${item.salary}`} 
+                                                secondary={`${item.department ?? 'Позиция не указана'}, ${item.salary ?? 'заработная плата не указана'}`} 
                                             />
                                         </Grid>
                                     </Grid>        
