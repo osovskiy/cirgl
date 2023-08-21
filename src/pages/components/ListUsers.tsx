@@ -60,8 +60,9 @@ const ListUsers: React.FC = () => {
         fileReader.readAsBinaryString(files[0]);
     }, [ handleCloseDialog ]);
 
+    //методы добавления пользователей в команды
     const onCheckedUser = useCallback((index: number) => {
-        var newChecked = checked;
+        let newChecked = checked;
         const chechedUser = index;
         newChecked.push(chechedUser as number);
         setChecked(newChecked);
@@ -85,7 +86,7 @@ const ListUsers: React.FC = () => {
         setDepartment('');
         setChecked([]);
         window.location.reload();
-    },[checked, department, importUsers, users]);
+    }, [ checked, department, importUsers, users ]);
 
     const onSearch = useCallback((value: string) => {
         if (value) {
@@ -94,11 +95,10 @@ const ListUsers: React.FC = () => {
         } else {
             setUsers(JSON.parse(localStorage.getItem('users') as string) ?? []);
         }
-    },[users]);
+    }, [ users ]);
 
     return (
         <>
-            
             <Typography variant="caption" display="block" gutterBottom style={{ marginTop: 15, display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ fontWeight: 'bold', fontSize: '18px', marginLeft: 25 }}>Контакты<IconButton sx={{ p: '0px', ml: '10px' }} 
                     onClick={handleClickOpenDialog}
@@ -129,34 +129,33 @@ const ListUsers: React.FC = () => {
                         <>
                         <ListItemButton
                             selected={checked.includes(item.id)}
-                            onClick={(event) => onCheckedUser(item.id)}
+                            onClick={() => onCheckedUser(item.id)}
                         >
-                            <Tooltip title="Чтобы добавить участника в существующую команду, кликните сначала по нему, после по соответствующей команде" placement="right">
-                                <ListItem
-                                    alignItems="flex-start"
-                                    key={item.id}
-                                    style={{ paddingInline: 15 }}
-                                    disablePadding
-                                >
-                                    <Grid container wrap="nowrap" spacing={2}>
-                                        <Grid item>
-                                            <ListItemAvatar>
-                                                <Avatar variant="rounded" src={item.avatar}>{item.id}</Avatar>
-                                            </ListItemAvatar>
-                                        </Grid>
-                                        <Grid item xs>
-                                            <ListItemText
-                                                primary={item.userName}
-                                                secondary={`${item.department ?? 'Позиция не указана'}, ${item.salary ?? 'заработная плата не указана'}`} 
-                                            />
-                                        </Grid>
-                                    </Grid>        
-                                </ListItem>
-                            </Tooltip>
+                            <ListItem
+                                alignItems="flex-start"
+                                key={item.id}
+                                style={{ paddingInline: 15 }}
+                                disablePadding
+                            >
+                                <Grid container wrap="nowrap" spacing={2}>
+                                    <Grid item>
+                                        <ListItemAvatar>
+                                            <Avatar variant="rounded" src={item.avatar} draggable="true" onDragStart={() => {
+                                                    localStorage.setItem('user', JSON.stringify(importUsers.filter((value) => value.id === item.id)));
+                                                }}>{item.id}</Avatar>
+                                        </ListItemAvatar>
+                                    </Grid>
+                                    <Grid item xs>
+                                        <ListItemText
+                                            primary={item.userName}
+                                            secondary={`${item.department ?? 'Позиция не указана'}, ${item.salary ?? 'заработная плата не указана'}`} 
+                                        />
+                                    </Grid>
+                                </Grid>        
+                            </ListItem>
                         </ListItemButton>
                         <Divider variant="inset" component="li" />
                     </>
-                        
                     );
                 })}
             </List>
@@ -166,7 +165,7 @@ const ListUsers: React.FC = () => {
                     variant='outlined'
                     sx={{ display: 'flex', alignItems: 'center', size: 'small' }}
                     >
-                    <IconButton sx={{ }} onClick={() => {
+                    <IconButton onClick={() => {
                         if (department && checked.length) {
                             onAddTeam();
                         }}}>

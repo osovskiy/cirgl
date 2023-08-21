@@ -29,8 +29,8 @@ const Canvas: React.FC = () => {
                 color: colors[index] ?? colors[Math.floor(Math.random() * (colors.length - 1))],
                 team: item.team.map((value: IUsers) => { 
                     const radiusValue = Math.sqrt((value.salary)/3.14);   
-                    var a = new window.Image();    
-                    a.src = value.avatar;       
+                    let img = new window.Image();    
+                    img.src = value.avatar;       
                     return {
                         userName: value.userName,
                         id: value.id,
@@ -38,7 +38,7 @@ const Canvas: React.FC = () => {
                         x: item.team.length === 1 ? x - radius + 10 : Math.random() * (x - (x - radius + 10)) + (x - radius + 10),
                         y: item.team.length === 1 ? y - radius + 10  : Math.random() * (y - (y - radius + 10)) + (y - radius + 10),
                         radius: radiusValue*0.6, // радиус вычеслен на основании площади круга = зарплате
-                        image: a,
+                        image: img,
                         avatar: value.avatar,
                     }
                 })
@@ -60,7 +60,7 @@ const Canvas: React.FC = () => {
         );
       });
 
-    const handleDragEndTeam = useEventCallback((e: KonvaEventObject<DragEvent>) => {     
+    const handleDragEndTeam = useEventCallback((e: KonvaEventObject<DragEvent>) => { 
         setCircle(
             circle.map((circle: any) => {
             return {
@@ -121,34 +121,43 @@ const Canvas: React.FC = () => {
         }
     });
 
-    const onClick = useEventCallback((e: KonvaEventObject<MouseEvent>) => {
-        if (e.target.attrs.id !== undefined && JSON.parse(localStorage.getItem('user') as string).length) {
-            const team = JSON.parse(localStorage.getItem('team') as string) ?? [];
-            const user = JSON.parse(localStorage.getItem('user') as string)[0];
-            const result = team.map((item: ITeam) => { 
-                if (item.id === e.target.attrs.id) {
-                    const resultTeam = [...item.team, user];
-                    return {
-                        department: item.department, 
-                        id: item.id,
-                        salary: item.salary + user.salary,
-                        team: resultTeam,
-                    };
-                } else {
-                    return item;
-                }
-            });
-            localStorage.setItem('team', JSON.stringify(result));
-            const users = JSON.parse(localStorage.getItem('users') as string) ?? [];
-            const resultUsers = users.filter((item: IUsers) => user.id !== item.id);
-            localStorage.setItem('users', JSON.stringify(resultUsers));
-            localStorage.setItem('user', JSON.stringify([]));
-            window.location.reload();
-        }
+    const onClick = useEventCallback((teamId: number) => {
+        const team = JSON.parse(localStorage.getItem('team') as string) ?? [];
+        const user = JSON.parse(localStorage.getItem('user') as string)[0];
+        const result = team.map((item: ITeam) => { 
+            if (item.id === teamId) {
+                const resultTeam = [...item.team, user];
+                return {
+                    department: item.department, 
+                    id: item.id,
+                    salary: item.salary + user.salary,
+                    team: resultTeam,
+                };
+            } else {
+                return item;
+            }
+        });
+        localStorage.setItem('team', JSON.stringify(result));
+        const users = JSON.parse(localStorage.getItem('users') as string) ?? [];
+        const resultUsers = users.filter((item: IUsers) => user.id !== item.id);
+        localStorage.setItem('users', JSON.stringify(resultUsers));
+        localStorage.setItem('user', JSON.stringify([]));
+        window.location.reload();
     });
 
     return (
-        <>
+        <div
+            onDrop={(e) => {
+                e.preventDefault();
+                const team = users.filter(item => e.nativeEvent.offsetX < item.x + item.radius && e.nativeEvent.offsetX > item.x - item.radius && e.nativeEvent.offsetY < item.y + item.radius && e.nativeEvent.offsetY > item.y - item.radius);
+                if (team.length) {
+                    onClick(team[0].id);
+                }
+            }}
+            onDragOver={(e) =>{
+                e.preventDefault();
+            }}
+        >
             <FormGroup style={{ width: window.innerWidth * 0.83, marginInline: 0 }}>
                 <Typography variant="caption" display="block" gutterBottom style={{ margin: 15, display: 'flex', justifyContent: 'space-between' }}>
                     <div style={{ fontSize: '18px' }}><span style={{ fontWeight: 'bold'}}>Проект: №1</span>, количество команд: {team.length}</div>
@@ -158,7 +167,7 @@ const Canvas: React.FC = () => {
                     />) : null}
                 </Typography>
             </FormGroup>
-            <Stage width={window.innerWidth * 0.83} height={window.innerHeight-72} onClick={(e) => onClick(e)}>
+            <Stage width={window.innerWidth * 0.83} height={window.innerHeight-72}>
                 <Layer>
                     {users.map((item) => (
                         <Group
@@ -224,7 +233,7 @@ const Canvas: React.FC = () => {
                             <Text
                                 x={item.x - item.radius / 2}
                                 y={item.y + item.radius - 5}
-                                text={`${item.department} ${item.salary}`}
+                                text={`${item.department} ${item.salary.toFixed(2)}`}
                                 width={`${item.department} ${item.salary}`.length * 12}
                                 height={36}
                                 fontSize={18}
@@ -234,7 +243,7 @@ const Canvas: React.FC = () => {
                     ))}
                 </Layer>
             </Stage>
-        </>
+        </div>
     );
 };
 
