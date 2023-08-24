@@ -84,8 +84,11 @@ const Canvas: React.FC = () => {
       });
 
     const handleDragEnd = useEventCallback((e: KonvaEventObject<DragEvent>, id?: number | undefined, idTeam?: number | undefined) => {
-        const team = users.filter((item) => item.id === idTeam);
-        if (e.evt.offsetX < team[0].x + team[0].radius && e.evt.offsetX > team[0].x - team[0].radius && e.evt.offsetY < team[0].y + team[0].radius && e.evt.offsetY > team[0].y - team[0].radius) {
+        const currentTeam = users.filter((item) => item.id === idTeam);
+        const newTeams = users.filter((item) => item.id !== idTeam);
+        const newTeam = newTeams.filter((value) => e.evt.offsetX < value.x + value.radius && e.evt.offsetX > value.x - value.radius && e.evt.offsetY < value.y + value.radius && e.evt.offsetY > value.y - value.radius);
+
+        if (e.evt.offsetX < currentTeam[0].x + currentTeam[0].radius && e.evt.offsetX > currentTeam[0].x - currentTeam[0].radius && e.evt.offsetY < currentTeam[0].y + currentTeam[0].radius && e.evt.offsetY > currentTeam[0].y - currentTeam[0].radius) {
             setCircle(
                 circle.map((circle: any) => {
                 return {
@@ -100,6 +103,7 @@ const Canvas: React.FC = () => {
                 if (idTeam === item.id) {
                     const resultTeam = item?.team?.filter((value: IUsers) => value.id !== id);
                     const removeUser = item?.team?.filter((value: IUsers) => value.id === id);
+                    localStorage.setItem('user', JSON.stringify(removeUser));
                     const users = JSON.parse(localStorage.getItem('users') as string) ?? [];
                     users.push(removeUser[0]);
                     localStorage.setItem('users', JSON.stringify(users));
@@ -117,7 +121,12 @@ const Canvas: React.FC = () => {
                 }
             });
             localStorage.setItem('team', JSON.stringify(result.filter((item: ITeam) => item)));
-            window.location.reload();
+            if (newTeam.length) {
+                onClick(newTeam[0].id);
+            } else { 
+                localStorage.setItem('user', JSON.stringify([]));
+                window.location.reload();
+            }
         }
     });
 
@@ -195,7 +204,7 @@ const Canvas: React.FC = () => {
                                         id={value.id as unknown as string}
                                         x={value.x}
                                         y={value.y}
-                                        width={value.radius*2*(value.image?.width ?? 1)/(value.image?.height ?? 1)}
+                                        width={value.radius*2}
                                         height={value.radius*2}
                                         scale={{x: 1, y: 1}}
                                         stroke='#FFFFFF' />
